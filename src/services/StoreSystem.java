@@ -1,5 +1,8 @@
 package services;
 
+import dao.DaoFactory;
+import dao.ProductDao;
+import dao.PurchaseDao;
 import entities.Purchase;
 import entities.Product;
 
@@ -9,6 +12,8 @@ import java.util.Scanner;
 
 public class StoreSystem {
 
+    private final ProductDao productDao = DaoFactory.createProductDao();
+    private final PurchaseDao purchaseDao = DaoFactory.createPurchaseDao();
     private final List<Product> listProducts = new ArrayList<>();
     private final List<Purchase> listPurchases = new ArrayList<>();
     private final Scanner sc;
@@ -29,10 +34,10 @@ public class StoreSystem {
         double price = sc.nextDouble();
         sc.nextLine();
 
-        Product product = new Product(listProducts.size() + 1, name, quantity, price);
-        listProducts.add(product);
+        Product product = new Product(null, name, quantity, price);
+        productDao.insert(product);
 
-        System.out.println("Product added successfully!\n");
+        System.out.println("Product added successfully to database!\n");
     }
     // ------------------------------------------------- //
 
@@ -44,23 +49,19 @@ public class StoreSystem {
         }
 
         listProducts();
-        System.out.print("Enter product code that you want to exclude: ");
-        int code = sc.nextInt();
+        System.out.print("Enter product id that you want to exclude: ");
+        int id = sc.nextInt();
 
-        Product productToExclude = searchProductByCode(code);
+        productDao.deleteById(id);
 
-        if (productToExclude != null) {
-            listProducts.remove(productToExclude);
-            System.out.println("Product excluded successfully!\n");
-        } else {
-            System.out.println("Invalid code!\n");
-        }
+        System.out.println("Product excluded successfully from database!\n");
+
     }
     // ------------------------------------------------- //
 
     // ------------------------------------------------- //
     public void addPurchase() {
-        Purchase purchase = new Purchase(listPurchases.size() + 1);
+        Purchase purchase = new Purchase(null);
 
         if (listProducts.isEmpty()) {
             System.out.println("No available product to buy.\n");
@@ -78,7 +79,7 @@ public class StoreSystem {
 
         if (!purchase.getListProducts().isEmpty()) {
             listPurchases.add(purchase);
-            System.out.println("Purchase " + purchase.getCode() + " registered successfully!\n");
+            System.out.println("Purchase " + purchase.getId() + " registered successfully!\n");
         } else {
             System.out.println("Purchase canceled (no items added).\n");
         }
@@ -189,12 +190,13 @@ public class StoreSystem {
 
     // ------------------------------------------------- //
     public void listProducts() {
-        if (listProducts.isEmpty()) {
+        List<Product> list = productDao.findAll();
+        if (list.isEmpty()) {
             System.out.println("No product registered.\n");
         } else {
             System.out.println();
             System.out.println("-=-=-=-=-=-=-=-=- PRODUCTS -=-=-=-=-=-=-=-=-=-=");
-            listProducts.forEach(System.out::println);
+            list.forEach(System.out::println);
             System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
             System.out.println();
         }
@@ -203,11 +205,12 @@ public class StoreSystem {
 
     // ------------------------------------------------- //
     public void listPurchases() {
-        if (listPurchases.isEmpty()) {
+        List<Product> list = productDao.findAll();
+        if (list.isEmpty()) {
             System.out.println("No purchase registered.\n");
         } else {
             System.out.println();
-            listPurchases.forEach(System.out::println);
+            list.forEach(System.out::println);
             System.out.println();
         }
     }
@@ -238,13 +241,13 @@ public class StoreSystem {
                 return;
             }
 
-            Product existingProduct = purchase.getProductByCode(stockProduct.getCode());
+            Product existingProduct = purchase.getProductByCode(stockProduct.getId());
 
             if (existingProduct != null) {
                 existingProduct.setQuantity(existingProduct.getQuantity() + quantity);
             } else {
                 Product purchasedProduct = new Product(
-                        stockProduct.getCode(),
+                        stockProduct.getId(),
                         stockProduct.getName(),
                         quantity,
                         stockProduct.getPrice()
@@ -302,12 +305,12 @@ public class StoreSystem {
 
     // ------------------------------------------------- //
     private void returnProductToStock(Product product, int quantity) {
-        Product stockProduct = searchProductByCode(product.getCode());
+        Product stockProduct = searchProductByCode(product.getId());
         if (stockProduct != null) {
             stockProduct.setQuantity(stockProduct.getQuantity() + quantity);
         } else {
             Product newProduct = new Product(
-                    product.getCode(),
+                    product.getId(),
                     product.getName(),
                     quantity,
                     product.getPrice()
@@ -320,7 +323,7 @@ public class StoreSystem {
     // ------------------------------------------------- //
     private Product searchProductByCode(int code) {
         for (Product p : listProducts) {
-            if (p.getCode() == code) {
+            if (p.getId() == code) {
                 return p;
             }
         }
@@ -331,7 +334,7 @@ public class StoreSystem {
     // ------------------------------------------------- //
     private Purchase searchPurchaseByCode(int code) {
         for (Purchase c : listPurchases) {
-            if (c.getCode() == code) {
+            if (c.getId() == code) {
                 return c;
             }
         }

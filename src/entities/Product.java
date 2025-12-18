@@ -1,21 +1,23 @@
 package entities;
 
 public class Product {
-    private Integer code;
+    private Integer id;
     private String name;
     private Integer quantity;
     private Double price;
 
-    public Product(int code, String name, int quantity, double price) {
-        this.code = code;
+    public Product(Integer id, String name, Integer quantity, Double price) {
+        this.id = id;
         this.name = name;
         this.quantity = quantity;
         this.price = price;
     }
 
-    public Integer getCode() {
-        return this.code;
+    public Integer getId() {
+        return this.id;
     }
+
+    public void setId(Integer id) { this.id = id; }
 
     public String getName() {
         return this.name;
@@ -44,7 +46,7 @@ public class Product {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Code: ").append(this.code);
+        sb.append("Id: ").append(this.id);
         sb.append(", Name: ").append(this.name);
         sb.append(", Quantity: ").append(this.quantity);
         sb.append(", Price: R$ ").append(String.format("%.2f", this.price));

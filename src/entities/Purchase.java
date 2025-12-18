@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Purchase {
-    private Integer code;
+    private Integer id;
     private final List<Product> listProducts = new ArrayList<>();
 
-    public Purchase(int code) {
-        this.code = code;
+    public Purchase(Integer id) {
+        this.id = id;
     }
 
-    public Integer getCode() {
-        return code;
+    public Integer getId() {
+        return id;
     }
 
     public List<Product> getListProducts() {
@@ -46,9 +46,9 @@ public class Purchase {
         }
     }
 
-    public Product getProductByCode(int code) {
+    public Product getProductByCode(int id) {
         for (Product p : listProducts) {
-            if (p.getCode() == code) {
+            if (p.getId() == id) {
                 return p;
             }
         }
@@ -72,7 +72,7 @@ public class Purchase {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n" + "-=-=-=-=-=-=-=-=- PURCHASE DETAILS -=-=-=-=-=-=-=-=-=-=").append("\n");
-        sb.append(String.format("Purchase Code: %s%n", code));
+        sb.append(String.format("Purchase Code: %s%n", id));
 
         if (listProducts.isEmpty()) {
             sb.append("\nNo products have been added.\n");

@@ -26,7 +26,7 @@ public class Main {
                 case '7' -> system.listProducts();
                 case '8' -> system.listPurchases();
                 case '9' -> {
-                    System.out.println("Saindo...");
+                    System.out.println("Bye bye...");
                     return;
                 }
                 default -> System.out.println("Invalid Option!\n");
