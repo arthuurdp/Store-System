@@ -7,10 +7,10 @@ A Java console application designed to manage products and purchases for a retai
 The system offers a full suite of functionalities to manage inventory and sales:
 
 ### Product Management
-- **addProduct():** Register new products.
-- **excludeProduct():** Remove products from the inventory.
-- **changeProduct():** Update name, quantity, or price.
-- **listProducts():** View all stock items sorted by name.
+- **Add Product:** Register new products.
+- **Exclude Product:** Remove products from the inventory.
+- **Change Product:** Update name, quantity, or price.
+- **List Products:** View all stock items sorted by name.
 
 ### Purchase Management
 - **Add Purchase:** Create a new purchase with multiple items.
