@@ -18,12 +18,12 @@ public class ProductService {
         return productDao.findById(id);
     }
 
-    public void insert(Product obj) {
-        productDao.insert(obj);
+    public void insert(Product p) {
+        productDao.insert(p);
     }
 
-    public void update(Product obj) {
-        productDao.update(obj);
+    public void update(Product p) {
+        productDao.update(p);
     }
 
     public boolean deleteById(Integer id) {

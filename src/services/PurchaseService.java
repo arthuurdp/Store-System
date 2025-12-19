@@ -6,6 +6,7 @@ import dao.PurchaseDao;
 import entities.Product;
 import entities.Purchase;
 
+import java.util.Date;
 import java.util.List;
 
 public class PurchaseService {
@@ -21,12 +22,15 @@ public class PurchaseService {
         return purchaseDao.findById(id);
     }
 
-    public void insert(Purchase obj) {
-        purchaseDao.insert(obj);
+    public void insert(Purchase p) {
+        if (p.getDate() == null) {
+            p.setDate(new Date());
+        }
+        purchaseDao.insert(p);
     }
 
-    public void update(Purchase obj) {
-        purchaseDao.update(obj);
+    public void update(Purchase p) {
+        purchaseDao.update(p);
     }
 
     public boolean deleteById(Integer id) {
@@ -41,7 +45,7 @@ public class PurchaseService {
         return false;
     }
 
-    public void addProductToPurchase(Purchase purchase, Product stockProduct, int quantity) {
+    public void addProductToPurchase(Purchase p, Product stockProduct, int quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be greater than zero.");
         }
@@ -49,7 +53,7 @@ public class PurchaseService {
             throw new IllegalArgumentException("Invalid quantity! Only " + stockProduct.getQuantity() + " units available.");
         }
 
-        Product existingProduct = purchase.getProductById(stockProduct.getId());
+        Product existingProduct = p.getProductById(stockProduct.getId());
 
         if (existingProduct != null) {
             existingProduct.setQuantity(existingProduct.getQuantity() + quantity);
@@ -60,38 +64,37 @@ public class PurchaseService {
                     quantity,
                     stockProduct.getPrice()
             );
-            purchase.addProduct(purchasedProduct);
+            p.addProduct(purchasedProduct);
         }
 
         stockProduct.setQuantity(stockProduct.getQuantity() - quantity);
         productDao.update(stockProduct);
 
-        if (purchase.getId() != null) {
-            purchaseDao.update(purchase);
+        if (p.getId() != null) {
+            purchaseDao.update(p);
         }
     }
 
-    public void removeProductFromPurchase(Purchase purchase, Product productInPurchase, int quantity) {
+    public void removeProductFromPurchase(Purchase p, Product productInPurchase, int quantity) {
         if (quantity <= 0 || (productInPurchase != null && quantity > productInPurchase.getQuantity())) {
             throw new IllegalArgumentException("Invalid quantity.");
         }
 
-        purchase.removeProduct(productInPurchase, quantity);
+        p.removeProduct(productInPurchase, quantity);
         returnProductToStock(productInPurchase, quantity);
 
-        if (purchase.getId() != null) {
-            purchaseDao.update(purchase);
+        if (p.getId() != null) {
+            purchaseDao.update(p);
         }
     }
 
-    private void returnProductToStock(Product product, int quantity) {
-        Product stockProduct = productDao.findById(product.getId());
+    private void returnProductToStock(Product p, int quantity) {
+        Product stockProduct = productDao.findById(p.getId());
         if (stockProduct != null) {
             stockProduct.setQuantity(stockProduct.getQuantity() + quantity);
             productDao.update(stockProduct);
         } else {
-            // If for some reason the product was deleted from the store, we re-insert it
-            Product newProduct = new Product(product.getId(), product.getName(), quantity, product.getPrice());
+            Product newProduct = new Product(p.getId(), p.getName(), quantity, p.getPrice());
             productDao.insert(newProduct);
         }
     }

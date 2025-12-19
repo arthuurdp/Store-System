@@ -7,7 +7,9 @@ import entities.Purchase;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PurchaseDaoJDBC implements PurchaseDao {
     private Connection conn;
@@ -23,11 +25,12 @@ public class PurchaseDaoJDBC implements PurchaseDao {
             conn.setAutoCommit(false);
 
             st = conn.prepareStatement(
-                    "INSERT INTO purchases (total_price, total_with_icms) VALUES (?, ?)",
+                    "INSERT INTO purchases (total_price, total_with_icms, purchase_date) VALUES (?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
 
             st.setDouble(1, p.total());
             st.setDouble(2, p.calculateIcms());
+            st.setTimestamp(3, new Timestamp(p.getDate().getTime()));
 
             int rows = st.executeUpdate();
 
@@ -66,11 +69,12 @@ public class PurchaseDaoJDBC implements PurchaseDao {
             conn.setAutoCommit(false);
 
             st = conn.prepareStatement(
-                    "UPDATE purchases SET total_price = ?, total_with_icms = ? WHERE id = ?");
+                    "UPDATE purchases SET total_price = ?, total_with_icms = ?, purchase_date = ? WHERE id = ?");
 
             st.setDouble(1, p.total());
             st.setDouble(2, p.calculateIcms());
-            st.setInt(3, p.getId());
+            st.setTimestamp(3, new java.sql.Timestamp(p.getDate().getTime()));
+            st.setInt(4, p.getId());
             st.executeUpdate();
 
             PreparedStatement stDelete = null;
@@ -129,8 +133,8 @@ public class PurchaseDaoJDBC implements PurchaseDao {
             st = conn.prepareStatement(
                     "SELECT p.*, pi.product_id, pi.quantity as item_quantity, pi.unit_price, prod.name as product_name " +
                             "FROM purchases p " +
-                            "JOIN purchase_items pi ON p.id = pi.purchase_id " +
-                            "JOIN products prod ON pi.product_id = prod.id " +
+                            "LEFT JOIN purchase_items pi ON p.id = pi.purchase_id " +
+                            "LEFT JOIN products prod ON pi.product_id = prod.id " +
                             "WHERE p.id = ?");
 
             st.setInt(1, id);
@@ -140,14 +144,20 @@ public class PurchaseDaoJDBC implements PurchaseDao {
             while (rs.next()) {
                 if (purchase == null) {
                     purchase = new Purchase(rs.getInt("id"));
+                    Timestamp ts = rs.getTimestamp("purchase_date");
+                    if (ts != null) {
+                        purchase.setDate(new java.util.Date(ts.getTime()));
+                    }
                 }
-                Product prod = new Product(
-                        rs.getInt("product_id"),
-                        rs.getString("product_name"),
-                        rs.getInt("item_quantity"),
-                        rs.getDouble("unit_price")
-                );
-                purchase.addProduct(prod);
+                if (rs.getObject("product_id") != null) {
+                    Product prod = new Product(
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            rs.getInt("item_quantity"),
+                            rs.getDouble("unit_price")
+                    );
+                    purchase.addProduct(prod);
+                }
             }
             return purchase;
         } catch (SQLException e) {
@@ -172,7 +182,7 @@ public class PurchaseDaoJDBC implements PurchaseDao {
             rs = st.executeQuery();
 
             List<Purchase> list = new ArrayList<>();
-            java.util.Map<Integer, Purchase> map = new java.util.HashMap<>();
+            Map<Integer, Purchase> map = new HashMap<>();
 
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -180,6 +190,10 @@ public class PurchaseDaoJDBC implements PurchaseDao {
 
                 if (p == null) {
                     p = new Purchase(id);
+                    Timestamp ts = rs.getTimestamp("purchase_date");
+                    if (ts != null) {
+                        p.setDate(new Date(ts.getTime()));
+                    }
                     map.put(id, p);
                     list.add(p);
                 }

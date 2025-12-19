@@ -99,7 +99,6 @@ public class StoreSystem {
 
     // ------------------------------------------------- //
     public void changeProduct() {
-        
         productService.findAll().forEach(System.out::println);
         System.out.print("Enter the product code that you want to change: ");
         int id = sc.nextInt();
@@ -172,7 +171,7 @@ public class StoreSystem {
     // ------------------------------------------------- //
 
     // ------------------------------------------------- //
-    private void addProductInPurchase(Purchase purchase) {
+    private void addProductInPurchase(Purchase p) {
         
         productService.findAll().forEach(System.out::println);
         System.out.print("Enter the product code to add: ");
@@ -185,7 +184,7 @@ public class StoreSystem {
             int quantity = sc.nextInt();
 
             try {
-                purchaseService.addProductToPurchase(purchase, stockProduct, quantity);
+                purchaseService.addProductToPurchase(p, stockProduct, quantity);
                 System.out.println("Product added successfully to purchase!\n");
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage() + "\n");
@@ -198,26 +197,26 @@ public class StoreSystem {
     // ------------------------------------------------- //
 
     // ------------------------------------------------- //
-    private void removeProductFromPurchase(Purchase purchase) {
-        if (purchase.getListProducts().isEmpty()) {
+    private void removeProductFromPurchase(Purchase p) {
+        if (p.getListProducts().isEmpty()) {
             System.out.println("This purchase has no products.\n");
             return;
         }
 
         System.out.println("Products in this purchase:");
-        purchase.getListProducts().forEach(System.out::println);
+        p.getListProducts().forEach(System.out::println);
 
         System.out.print("Enter the product code to remove: ");
         int productCode = sc.nextInt();
 
-        Product productInPurchase = purchase.getProductById(productCode);
+        Product productInPurchase = p.getProductById(productCode);
 
         if (productInPurchase != null) {
             System.out.print("Enter the quantity you want to remove: ");
             int quantity = sc.nextInt();
 
             try {
-                purchaseService.removeProductFromPurchase(purchase, productInPurchase, quantity);
+                purchaseService.removeProductFromPurchase(p, productInPurchase, quantity);
                 System.out.println("Product removed successfully!\n");
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage() + "\n");

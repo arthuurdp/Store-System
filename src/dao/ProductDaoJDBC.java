@@ -19,23 +19,32 @@ public class ProductDaoJDBC implements ProductDao {
     public void insert(Product p) {
         PreparedStatement st = null;
         try {
-            st = conn.prepareStatement(
-                    "INSERT INTO products (name, quantity, price) VALUES (?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS);
+            if (p.getId() == null) {
+                st = conn.prepareStatement(
+                        "INSERT INTO products (name, quantity, price) VALUES (?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
+                st.setString(1, p.getName());
+                st.setInt(2, p.getQuantity());
+                st.setDouble(3, p.getPrice());
 
-            st.setString(1, p.getName());
-            st.setInt(2, p.getQuantity());
-            st.setDouble(3, p.getPrice());
+                int rows = st.executeUpdate();
 
-            int rows = st.executeUpdate();
-
-            if (rows == 0) {
-                throw new DbException("Unexpected error!");
-            } else {
-                ResultSet rs = st.getGeneratedKeys();
-                if (rs.next()) {
-                    p.setId(rs.getInt(1));
+                if (rows == 0) {
+                    throw new DbException("Unexpected error!");
+                } else {
+                    ResultSet rs = st.getGeneratedKeys();
+                    if (rs.next()) {
+                        p.setId(rs.getInt(1));
+                    }
                 }
+            } else {
+                st = conn.prepareStatement(
+                        "INSERT INTO products (id, name, quantity, price) VALUES (?, ?, ?, ?)");
+                st.setInt(1, p.getId());
+                st.setString(2, p.getName());
+                st.setInt(3, p.getQuantity());
+                st.setDouble(4, p.getPrice());
+                st.executeUpdate();
             }
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
@@ -47,7 +56,6 @@ public class ProductDaoJDBC implements ProductDao {
     @Override
     public void update(Product p) {
         PreparedStatement st = null;
-
         try {
             st = conn.prepareStatement(
                     "UPDATE products SET name = ?, quantity = ?, price = ? WHERE id = ?");

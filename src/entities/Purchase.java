@@ -1,10 +1,14 @@
 package entities;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Purchase {
+    private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private Integer id;
+    private Date date;
     private final List<Product> listProducts = new ArrayList<>();
 
     public Purchase(Integer id) {
@@ -19,20 +23,30 @@ public class Purchase {
         this.id = id;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
     public List<Product> getListProducts() {
         return listProducts;
     }
 
-    public void addProduct(Product product) {
-        listProducts.add(product);
+    public void addProduct(Product p) {
+        listProducts.add(p);
     }
 
-    public void removeProduct(Product product, int quantity) {
-        Product p = getProductById(product.getId());
-        if (p != null) {
-            p.setQuantity(p.getQuantity() - quantity);
-            if (p.getQuantity() == 0) {
+    public void removeProduct(Product p, int quantity) {
+        Product prod = getProductById(p.getId());
+        if (prod != null) {
+            int newQuantity = p.getQuantity() - quantity;
+            if (newQuantity <= 0) {
                 listProducts.remove(p);
+            } else {
+                p.setQuantity(newQuantity);
             }
         }
     }
@@ -64,6 +78,9 @@ public class Purchase {
 
         sb.append("\n===================================================\n");
         sb.append(String.format("                PURCHASE DETAILS #%d\n", id));
+        if (date != null) {
+            sb.append(String.format("Date: %s\n", sdf.format(date)));
+        }
         sb.append("===================================================\n");
 
         if (listProducts.isEmpty()) {
@@ -72,7 +89,7 @@ public class Purchase {
             sb.append(String.format("%-25s | %-10s | %-5s\n", "Product Name", "Qty", "Price"));
             sb.append("---------------------------------------------------\n");
             for (Product p : listProducts) {
-                sb.append(String.format("%-25s | %-10d | R$ %8.2f\n", 
+                sb.append(String.format("%-25s | %-10d | R$ %.2f\n",
                                        p.getName(), p.getQuantity(), p.getPrice()));
             }
         }
