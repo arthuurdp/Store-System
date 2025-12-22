@@ -51,29 +51,6 @@ Custom `DbException` (unchecked) implementation to wrap `SQLException`, keeping 
 - **MySQL**: Relational database for persistent storage.
 - **MySQL Connector/J**: Driver for JDBC connection.
 
-## Setup
-
-### 1. Database Setup
-1. Create a MySQL database named `storejdbc`.
-2. Run the provided `script.sql` file:
-   ```sql
-   SOURCE script.sql;
-   ```
-
-### 2. Configure Connection
-1. Update `db.properties` in the project root:
-   ```properties
-   user=your_username
-   password=your_password
-   dburl=jdbc:mysql://localhost:3306/storejdbc
-   useSSL=false
-   ```
-
-### 3. Run the Application
-Compile and run `src/application/Main.java`.
-
----
-
 ## Author
 **Arthur Dall Agnol Pinheiro**
 * Estudante de Análise e Desenvolvimento de Sistemas,  UPF - Passo Fundo.
