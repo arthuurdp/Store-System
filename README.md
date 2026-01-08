@@ -25,10 +25,3 @@ To guarantee consistency (especially when a purchase affects both the `purchases
 
 ### 4. Error Handling
 Custom `DbException` implementation to wrap `SQLException`, keeping the method signatures clean while still providing meaningful error propagation.
-
----
-
-## Author
-**Arthur Dall Agnol Pinheiro**
-* Estudante de Análise e Desenvolvimento de Sistemas,  UPF - Passo Fundo.
-* [LinkedIn](https://www.linkedin.com/in/arthur-dall-agnol-pinheiro-b04285357/)
